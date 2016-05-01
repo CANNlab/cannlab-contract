@@ -36,3 +36,7 @@
 
 + copies of the data from raw/ used to run to cbs-tools, which was used to compute the anatomical brain masks (for the MP2RAGE data).
 
+**freesurfer**
+
++ downsampled and deskulled versions of the files found in working/ were run through freesurfer here.
++ see the script in bin/ for more details.

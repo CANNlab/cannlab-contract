@@ -3,5 +3,6 @@ epitome-data/
 output/
 raw/
 working/
+freesurfer/
 
 *.pyc
