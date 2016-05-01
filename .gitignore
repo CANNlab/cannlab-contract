@@ -1,0 +1,7 @@
+demographics/
+epitome-data/
+output/
+raw/
+working/
+
+*.pyc

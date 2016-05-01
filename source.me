@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# edit this to match your machine
+directory='/srv/data/7T'
+
+# this will ammend your environment
+export PATH=$PATH:${directory}/bin
+export PATH=$PATH:${directory}/epitome/bin
+export PYTHONPATH=$PYTHONPATH:${directory}/epitome
+export EPITOME_DATA="${directory}/epitome-data"

@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# This script is designed to put an MP2RAGE image through freesurfer.
+# for it to work, you need to have created a who;e-brain segmentation of the
+# MP2RAGE image using CBStools ('MP2RAGE_T1_thresh_clone_transform_strip_seg').
+#
+# This script will create a brain mask, invert the MP2RAGE image's values
+# (making the image T1-like), resample the image to 1mm^3 resolution, and
+# finally deskull that image.
+#
+# For freesurfer to work, the first stage is run with the full T1 image
+# (including skull), with the deskulling option turned off. Next, the deskulled
+# image is copied into the freesurfer directory, allowing us to run the 2nd
+# and 3rd stages.
+#
+# Above taken from here: https://www.mail-archive.com/freesurfer@nmr.mgh.harvard.edu/msg29950.html
+#
+# I have not evaluated the quality of the output surfaces, as epitome only needs
+# the tissue segmentations.
+
+SUBJ='7T_SUB008_SESS01'
+
+# take output of CBStools to create brain mask
+3dresample -prefix tmp_mask_1.nii.gz -dxyz 1.0 1.0 1.0 -inset MP2RAGE_T1_thresh_clone_transform_strip_seg.nii.gz
+3dcalc -a tmp_mask_1.nii.gz -prefix tmp_mask_2.nii.gz -expr 'astep(a,2)-equals(a,50)'
+3dmask_tool -input tmp_mask_2.nii.gz -prefix tmp_mask_3.nii.gz -dilate_input -1
+3daxialize -prefix anat_T1_brain_mask.nii.gz tmp_mask_3.nii.gz
+rm tmp_mask*.nii.gz
+
+# make image T1-like (downsample to match mask, invert and scale)
+3dcalc -a MP2RAGE_T1.nii.gz -prefix tmp_inv.nii.gz -expr 'a*-1'
+fslmaths tmp_inv.nii.gz -add 10000 tmp_inv_2.nii.gz
+3daxialize -prefix tmp_inv_3.nii.gz tmp_inv_2.nii.gz
+3dresample -prefix anat_T1.nii.gz -master anat_T1_brain_mask.nii.gz -inset tmp_inv_2.nii.gz
+rm tmp_inv*.nii.gz
+
+# deskull T1
+3dcalc -a anat_T1.nii.gz -b anat_T1_brain_mask.nii.gz -prefix anat_T1_brain.nii.gz -expr 'a*b'
+
+# init subject folder
+recon-all -i anat_T1.nii.gz -subjid ${SUBJ}
+
+# run initial steps, skipping freesurfer skull stripping
+recon-all -autorecon1 -notal-check -noskullstrip -s ${SUBJ}
+mri_convert --conform anat_T1_brain.nii.gz ${SUBJECTS_DIR}/${SUBJ}/mri/brainmask.mgz
+
+# run rest of recon-all
+recon-all  -autorecon2 -autorecon3 -subjid ${SUBJ}
+

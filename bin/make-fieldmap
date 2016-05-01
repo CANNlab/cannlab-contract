@@ -1,0 +1,40 @@
+#!/bin/bash
+#
+# unwarp mag phase output deltate
+#
+# mag:       magnitude image (two volumes, one for each TE)
+# phase:     phase difference image
+# output:    output fieldmap name
+# deltate:   delta te (1.02 ms for 7T data)
+
+mag=${1}
+phase=${2}
+output=${3}
+deltate=${4}
+
+if [ ! -f ${output} ]; then
+
+    # reorient images
+    fslreorient2std ${mag} tmp_mag_reoriented.nii.gz
+    fslreorient2std ${phase} tmp_phase_reoriented.nii.gz
+
+    # split magnitude image
+    fslsplit tmp_mag_reoriented.nii.gz tmp_mag_ -t
+
+    # brain extract magnitude images
+    base=$(echo ${mag} | cut -d '.' -f 1)
+    bet tmp_mag_0000.nii.gz ${base}_brain_0001 -f 0.35 -m
+    bet tmp_mag_0001.nii.gz ${base}_brain_0002 -f 0.35 -m
+
+    # prepares fieldmap
+    fsl_prepare_fieldmap \
+        SIEMENS \
+        tmp_phase_reoriented.nii.gz \
+        ${base}_brain_0002.nii.gz \
+        ${output} \
+        ${deltate}
+
+    # remove leftover niftis
+    rm tmp_*.nii.gz
+fi
+

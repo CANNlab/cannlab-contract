@@ -1,0 +1,9 @@
+#!/bin/bash
+
+nifti_dir='/srv/data/7T/raw/niftis'
+for sub in $(ls -d ${nifti_dir}/*); do
+    make-fieldmap ${sub}/session_1/fieldmap_1_magnitude.nii.gz ${sub}/session_1/fieldmap_1_phase.nii.gz ${sub}/session_1/fieldmap_1.nii.gz 1.02
+    make-fieldmap ${sub}/session_1/fieldmap_2_magnitude.nii.gz ${sub}/session_1/fieldmap_2_phase.nii.gz ${sub}/session_1/fieldmap_2.nii.gz 1.02
+    make-fieldmap ${sub}/session_2/fieldmap_1_magnitude.nii.gz ${sub}/session_2/fieldmap_1_phase.nii.gz ${sub}/session_2/fieldmap_1.nii.gz 1.02
+    make-fieldmap ${sub}/session_2/fieldmap_2_magnitude.nii.gz ${sub}/session_2/fieldmap_2_phase.nii.gz ${sub}/session_2/fieldmap_2.nii.gz 1.02
+done

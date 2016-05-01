@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+# unwarp-func fieldmap mag func output
+#
+# fieldmap:  magnitude image (two volumes, one for each TE)
+# mag:       deskulled magnitude image
+# func:      functional data to unwarp
+# dwell:     dwell time in s (echo spacing / acceleration factor, see protocol .PDF)
+# output:    output fieldmap name
+
+fieldmap=${1}
+mag=${2}
+func=${3}
+dwell=${4}
+output=${5}
+
+if [ ! -f ${output} ]; then
+
+    # set by hand, could be x x- y y- z z-
+    unwarpdir='y-'
+
+    # regularize fieldmap
+    fugue --loadfmap=${fieldmap} -s 4 --savefmap=tmp_fieldmap_reg.nii.gz
+
+    # warp magnitude brain with fieldmap
+    fugue -i ${mag} --dwell=${dwell} --unwarpdir=${unwarpdir} --loadfmap=tmp_fieldmap_reg.nii.gz -w tmp_mag_warped.nii.gz
+
+    # register forward-warped magnitude image with EPI
+    flirt -in tmp_mag_warped.nii.gz -ref ${func} -omat tmp_mag2epi.mat
+
+    # register fieldmap with EPI
+    flirt -in tmp_fieldmap_reg.nii.gz -ref ${func} -applyxfm -init tmp_mag2epi.mat -out tmp_reg_fieldmap.nii.gz
+
+    # unwarp functional run (regularized using 3 term polynomial)
+    fugue -i ${func} --loadfmap=tmp_reg_fieldmap.nii.gz --dwell=${dwell} --unwarpdir=${unwarpdir} --icorr -u ${output}
+
+    rm tmp_*
+fi

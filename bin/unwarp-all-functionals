@@ -1,0 +1,9 @@
+#!/bin/bash
+
+nifti_dir='/srv/data/7T/raw/niftis'
+for sub in $(ls -d ${nifti_dir}/*); do
+    unwarp-func ${sub}/session_1/fieldmap_1.nii.gz ${sub}/session_1/fieldmap_1_magnitude_brain_0001.nii.gz ${sub}/session_1/rest_full_brain_1.nii.gz 0.000333 ${sub}/session_1/rest_full_brain_1_unwarped.nii.gz
+    unwarp-func ${sub}/session_1/fieldmap_2.nii.gz ${sub}/session_1/fieldmap_2_magnitude_brain_0001.nii.gz ${sub}/session_1/rest_full_brain_2.nii.gz 0.000333 ${sub}/session_1/rest_full_brain_2_unwarped.nii.gz
+    unwarp-func ${sub}/session_2/fieldmap_1.nii.gz ${sub}/session_2/fieldmap_1_magnitude_brain_0001.nii.gz ${sub}/session_2/rest_full_brain_1.nii.gz 0.000333 ${sub}/session_2/rest_full_brain_1_unwarped.nii.gz
+    unwarp-func ${sub}/session_2/fieldmap_2.nii.gz ${sub}/session_2/fieldmap_2_magnitude_brain_0001.nii.gz ${sub}/session_2/rest_full_brain_2.nii.gz 0.000333 ${sub}/session_2/rest_full_brain_2_unwarped.nii.gz
+done
