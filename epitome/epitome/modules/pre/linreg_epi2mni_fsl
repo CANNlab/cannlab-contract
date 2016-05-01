@@ -10,7 +10,8 @@ cat <<"EOF"
 echo '*** MODULE: linreg_epi2mni_fsl. MNI-transforms functional data. *********'
 
 DIR_SESS=`ls -d -- ${DIR_DATA}/${DIR_EXPT}/${SUB}/${DATA_TYPE}/*/`
-for SESS in `basename ${DIR_SESS}`; do
+for SESS in ${DIR_SESS}; do
+    SESS=$(basename ${SESS})
 
     DIR=`echo ${DIR_DATA}/${DIR_EXPT}/${SUB}/${DATA_TYPE}/${SESS}`
     DIR_T1=`echo ${DIR_DATA}/${DIR_EXPT}/${SUB}/T1/${SESS}`

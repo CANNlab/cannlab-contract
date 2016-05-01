@@ -11,20 +11,25 @@ cat <<"EOF"
 echo '*** MODULE: linreg_calc_fsl. Calculates EPI <--> T1 <--> MNI152. ********'
 
 # # Copy MNI brain to experiment directory
-# if [ ! -f ${DIR_DATA}/${DIR_EXPT}/anat_MNI.nii.gz ]; then
-#     cp ${DIR_PIPE}/assets/MNI152_T1_1mm_brain.nii.gz ${DIR_DATA}/${DIR_EXPT}/anat_MNI.nii.gz
-#     cp ${DIR_PIPE}/assets/MNI152_T1_1mm_brain_mask_dil.nii.gz ${DIR_DATA}/${DIR_EXPT}/anat_MNI_mask.nii.gz
-# fi
+if [ ! -f ${DIR_DATA}/${DIR_EXPT}/anat_MNI.nii.gz ]; then
+    cp ${DIR_PIPE}/assets/MNI152_T1_1mm_brain.nii.gz ${DIR_DATA}/${DIR_EXPT}/anat_MNI.nii.gz
+    cp ${DIR_PIPE}/assets/MNI152_T1_1mm_brain_mask_dil.nii.gz ${DIR_DATA}/${DIR_EXPT}/anat_MNI_mask.nii.gz
+fi
 
 DIR_SESS=`ls -d -- ${DIR_DATA}/${DIR_EXPT}/${SUB}/${DATA_TYPE}/*/`
-for SESS in `basename ${DIR_SESS}`; do
+for SESS in ${DIR_SESS}; do
+    SESS=$(basename ${SESS})
     DIR=`echo ${DIR_DATA}/${DIR_EXPT}/${SUB}/${DATA_TYPE}`
     DIR_T1=`echo ${DIR_DATA}/${DIR_EXPT}/${SUB}/T1`
 
-    # If we have a T1 for each session, we register to the session T1.
-    # Otherwise, we go to the first session.
-    if [ `ls -l ${DIR} | grep ^d | wc -l` -eq \
-         `ls -l ${DIR_T1} | grep ^d | wc -l` ]; then
+    # figure out if we should use each session's T1, or just the first session
+    if [ $(ls -l ${DIR} | grep ^d | wc -l) -eq $(ls -l ${DIR_T1} | grep ^d | wc -l) ]; then
+        multisession=1
+    else
+        multisession=0
+    fi
+
+    if [ ${multisession} -eq 1 ]; then
         ANAT_T1=`echo ${DIR_T1}/${SESS}/anat_T1_brain.nii.gz`
     else
         ANAT_T1=`echo ${DIR_T1}/SESS01/anat_T1_brain.nii.gz`
@@ -47,8 +52,7 @@ for SESS in `basename ${DIR_SESS}`; do
             -dof ${REG_DOF} \
             -cost ${COST} \
             -searchcost ${COST} \
-            -searchrx -180 180 -searchry -180 180 -searchrz -180 180 \
-            -v
+            -searchrx -180 180 -searchry -180 180 -searchrz -180 180
 
         # invert flirt transform
         convert_xfm \
@@ -65,23 +69,19 @@ for SESS in `basename ${DIR_SESS}`; do
             -ref ${ANAT_EPI} \
             -out ${DIR}/${SESS}/reg_T1_to_EPI.nii.gz \
             -applyxfm \
-            -init ${DIR}/${SESS}/mat_T1_to_EPI.mat \
-            -v
+            -init ${DIR}/${SESS}/mat_T1_to_EPI.mat
     fi
 
     # calculate registration of T1 to reg_T1_to_TAL
     if [ ! -f ${DIR}/${SESS}/mat_TAL_to_T1.mat ]; then
         flirt \
-            -in ${DIR_T1}/${SESS}/anat_T1_brain.nii.gz \
+            -in ${ANAT_T1} \
             -ref ${FSLDIR}/data/standard/MNI152_T1_2mm_brain.nii.gz \
             -out ${DIR}/${SESS}/reg_T1_to_TAL.nii.gz \
             -omat ${DIR}/${SESS}/mat_T1_to_TAL.mat \
-            -dof ${REG_DOF} \
+            -dof 12 \
             -searchcost corratio \
-            -cost ${COST} \
-            -searchcost ${COST} \
-            -searchrx -180 180 -searchry -180 180 -searchrz -180 180 \
-            -v
+            -cost corratio
 
         # invert flirt transform
         convert_xfm \

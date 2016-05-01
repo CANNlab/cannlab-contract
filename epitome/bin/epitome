@@ -233,7 +233,7 @@ def check_environment(mode='verbose'):
                     DIR_MATLAB=DIR_MATLAB,
                     hcp_data=dir_hcp_data,
                     hcp_tools=dir_hcp_tools,
-                    wb_command=workbence))
+                    wb_command=dir_workbench))
         print(txt)
 
 def check_run(expt, subj, mode, sess, run):

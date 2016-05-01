@@ -10,10 +10,9 @@ cat <<"EOF"
 echo '*** MODULE: nonlinreg_epi2mni_fsl. Warps EPI data to MNI space. *********'
 
 DIR_SESS=`ls -d -- ${DIR_DATA}/${DIR_EXPT}/${SUB}/${DATA_TYPE}/*/`
-for SESS in `basename ${DIR_SESS}`; do
-
+for SESS in ${DIR_SESS}; do
+    SESS=$(basename ${SESS})
     DIR=`echo ${DIR_DATA}/${DIR_EXPT}/${SUB}/${DATA_TYPE}/${SESS}`
-    DIR_T1=`echo ${DIR_DATA}/${DIR_EXPT}/${SUB}/T1/${SESS}`
 
     # create registration dummy for FSL
     if [ ! -f ${DIR}/anat_EPI_reg_target.nii.gz ]; then
