@@ -6,7 +6,6 @@ cannlab-contract: 7t
 + environment set-up through the `source.me` file. remember to edit the path.
 + to load environment: `source source.me`
 
-
 **bin**
 
 + contains one-off scripts used to get the raw data ready for epitome.
@@ -30,14 +29,11 @@ cannlab-contract: 7t
 **raw**
 
 + the raw data. also contains the fieldmap-unwarping steps (see bin/).
++ copies of the data from raw/ used to run to cbs-tools, which was used to compute the anatomical brain masks (for the MP2RAGE data).
 
 **reference**
 
 + papers and notes related to the data.
-
-**working**
-
-+ copies of the data from raw/ used to run to cbs-tools, which was used to compute the anatomical brain masks (for the MP2RAGE data).
 
 **freesurfer**
 
