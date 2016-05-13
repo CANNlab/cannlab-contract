@@ -62,8 +62,7 @@ pipeline
     + ${DIR_PIPE}/modules/pre/linreg_fs2epi_fsl
     + ${DIR_PIPE}/modules/pre/filter scaled 4 on off on on off off off 3 EPI_mask
     + ${DIR_PIPE}/modules/pre/lowpass filtered EPI_mask butterworth 0.1
-    + ${DIR_PIPE}/modules/pre/volsmooth lowpass EPI_mask 4.0 normal
-    + ${DIR_PIPE}/modules/pre/nonlinreg_epi2mni_fsl volsmooth 1.5
+    + ${DIR_PIPE}/modules/pre/nonlinreg_epi2mni_fsl lowpass 1.5
 
 exceptions
 ----------
