@@ -65,3 +65,9 @@ pipeline
     + ${DIR_PIPE}/modules/pre/volsmooth lowpass EPI_mask 4.0 normal
     + ${DIR_PIPE}/modules/pre/nonlinreg_epi2mni_fsl volsmooth 1.5
 
+exceptions
+----------
+
++ no physio for SUB013/SESS01
++ no fieldmap for SUB013/SESS01
+
